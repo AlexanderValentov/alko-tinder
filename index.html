@@ -197,36 +197,6 @@
                 container.appendChild(card);
             }
         }
-            const container = document.getElementById('cardContainer');
-            container.innerHTML = `<div class="no-profiles" id="noProfiles"><p>Никого рядом нет... 🫙</p></div>`;
-            
-            if (loadedUsers.length === 0) {
-                document.getElementById('noProfiles').style.display = 'block';
-                return;
-            }
-
-            for (let i = loadedUsers.length - 1; i >= 0; i--) {
-                const user = loadedUsers[i];
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.id = `card-${i}`;
-                card.style.zIndex = loadedUsers.length - i;
-
-                const distStr = user.distanceInKm < 1 
-                    ? `${Math.round(user.distanceInKm * 1000)} метров от тебя` 
-                    : `${user.distanceInKm.toFixed(1)} км от тебя`;
-
-                card.innerHTML = `
-                    <div class="card-avatar" style="background-image: url('${user.avatar_url}')"></div>
-                    <div class="card-info">
-                        <div class="user-name">${user.name}</div>
-                        <div class="user-distance">📍 ${distStr}</div>
-                        <div class="user-alcohol">${user.alcohol}</div>
-                    </div>
-                `;
-                container.appendChild(card);
-            }
-        }
 
         async function swipe(action) {
              // Добавляем эту строчку, чтобы увидеть, что происходит в консоли:
@@ -236,11 +206,7 @@
         if (currentIndex >= loadedUsers.length) { console.log("Профили закончились!"); return; }
 
         const targetUser = loadedUsers[currentIndex];
-            if (!db || currentIndex >= loadedUsers.length) return;
-
-            const targetUser = loadedUsers[currentIndex];
-            const currentCard = document.getElementById(`card-${currentIndex}`);
-            
+        const currentCard = document.getElementById(`card-${currentIndex}`);
             if (action === 'toast') {
                 currentCard.style.transform = 'translateX(150vw) rotate(30deg)';
                 currentCard.style.opacity = '0';

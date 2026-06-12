@@ -13,26 +13,27 @@
         
         header { padding: 15px; font-size: 20px; font-weight: bold; color: #ff9f43; text-align: center; width: 100%; border-bottom: 1px solid #222; background: #121212; }
         
+        /* Нижнее меню навигации */
         .nav-bar { display: none; width: 100%; background: #1e1e1e; border-top: 1px solid #333; justify-content: space-around; padding: 10px 0; z-index: 100; }
         .nav-btn { background: none; border: none; color: #888; font-size: 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 33%; }
         .nav-btn.active { color: #ff9f43; font-weight: bold; }
         .nav-icon { font-size: 20px; }
 
-        .screen { display: none; flex-direction: column; justify-content: center; align-items: center; flex-grow: 1; width: 100%; padding: 20px; text-align: center; overflow-y: auto; padding-bottom: 40px; }
+        .screen { display: none; flex-direction: column; justify-content: flex-start; align-items: center; flex-grow: 1; width: 100%; padding: 20px; text-align: center; overflow-y: auto; padding-bottom: 40px; }
         
-        #screen-loading { display: flex; }
+        /* Экраны */
+        #screen-loading { display: flex; justify-content: center; }
         .spinner { border: 4px solid rgba(255,159,67,0.1); border-left-color: #ff9f43; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 20px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         input[type="text"] { width: 100%; max-width: 300px; padding: 14px; background: #222; border: 1px solid #444; border-radius: 10px; color: white; font-size: 16px; margin: 15px 0; outline: none; text-align: center; }
         
-        .btn-main { background: #ff9f43; color: white; padding: 14px 40px; border-radius: 10px; border: none; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; max-width: 300px; transition: all 0.2s; }
+        .btn-main { background: #ff9f43; color: white; padding: 14px 40px; border-radius: 10px; border: none; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; max-width: 300px; transition: all 0.2s; margin-bottom: 10px; text-align: center; }
         .btn-main:disabled { background: #2d3436; color: #666; cursor: not-allowed; opacity: 0.6; }
+        .btn-danger { background-color: #ff6b6b; margin-top: 20px; }
         
-        /* Красная кнопка удаления аккаунта */
-        .btn-danger { background: #count; background-color: #ff6b6b; color: white; margin-top: 20px; }
-        .btn-danger:active { transform: scale(0.95); }
-        
+        /* Стили для Юридического манифеста */
+        .legal-text { font-size: 12px; color: #ccc; text-align: left; line-height: 1.5; max-width: 340px; white-space: pre-wrap; margin-top: 10px; padding: 10px; }
         .disclaimer-box { width: 100%; max-width: 300px; background: #1e1e1e; border: 1px solid #333; border-radius: 12px; padding: 12px; font-size: 11px; color: #aaa; text-align: left; line-height: 1.4; margin-bottom: 15px; max-height: 110px; overflow-y: auto; }
         .disclaimer-box b { color: #ff6b6b; display: block; margin-bottom: 4px; text-transform: uppercase; font-size: 12px; }
         
@@ -40,9 +41,9 @@
         .checkbox-container input { width: 18px; height: 18px; cursor: pointer; accent-color: #ff9f43; }
 
         .avatar-preview { width: 110px; height: 110px; border-radius: 50%; border: 2px dashed #ff9f43; background-size: cover; background-position: center; margin-bottom: 12px; display: flex; justify-content: center; align-items: center; color: #888; font-size: 12px; }
-        .file-input-label { background: #2d3436; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; cursor: pointer; margin-bottom: 15px; border: 1px solid #444; }
+        .file-input-label { background: #2d3436; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; cursor: pointer; margin-bottom: 15px; border: 1px solid #444; display: inline-block; }
 
-        /* Лента Радара */
+        /* Радар карт */
         #screen-feed { justify-content: space-between; padding: 10px 0; }
         .card-container { position: relative; flex-grow: 1; width: 90%; max-width: 360px; display: flex; justify-content: center; align-items: center; margin-bottom: 10px; }
         .card { position: absolute; width: 100%; height: 100%; background: #1e1e1e; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: flex; flex-direction: column; justify-content: flex-end; transition: transform 0.3s ease, opacity 0.3s ease; border: 1px solid #333; }
@@ -56,22 +57,20 @@
         .btn-pass { background-color: #2d3436; color: #ff6b6b; }
         .btn-toast { background-color: #ff9f43; color: #fff; }
 
-        /* Матчи */
+        /* Вкладка совпадений */
         .match-item { width: 100%; max-width: 360px; background: #1e1e1e; padding: 15px; border-radius: 12px; display: flex; align-items: center; gap: 15px; margin-bottom: 10px; border: 1px solid #333; text-align: left; cursor: pointer; }
         .match-avatar { width: 50px; height: 50px; border-radius: 50%; background-size: cover; background-position: center; background-color: #333; }
         .match-name { font-size: 18px; font-weight: bold; }
 
-        /* Внутренний чат */
+        /* Логика сообщений */
         #screen-chat { padding: 10px; justify-content: space-between; }
         .chat-history { flex-grow: 1; width: 100%; max-width: 360px; overflow-y: auto; background: #121212; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
-        
         .msg { max-width: 75%; padding: 10px 14px; border-radius: 15px; font-size: 15px; text-align: left; word-break: break-word; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
         .msg.sent { background: #ff9f43; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
         .msg.received { background: #222; color: white; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #333; }
         .msg-text { flex-grow: 1; }
         .msg-del-btn { cursor: pointer; font-size: 11px; opacity: 0.5; transition: opacity 0.2s; padding: 2px 5px; }
         .msg-del-btn:hover { opacity: 1; }
-
         .chat-input-container { width: 100%; max-width: 360px; display: flex; gap: 10px; margin-top: 10px; }
         .chat-input { flex-grow: 1; padding: 12px; background: #222; border: 1px solid #444; border-radius: 8px; color: white; outline: none; }
     </style>
@@ -80,11 +79,13 @@
 
     <header id="app-header">🍻 КтоПойдет</header>
 
+    <!-- ЛИСТ 1: Экран загрузки -->
     <div id="screen-loading" class="screen">
         <div class="spinner"></div>
         <p id="loading-text">Радар настраивается... 🧭</p>
     </div>
 
+    <!-- ЛИСТ 2: Регистрация + Израильский Юридический Дисклеймер -->
     <div id="screen-setup" class="screen">
         <h2>Создай анкету 🚀</h2>
         <div class="avatar-preview" id="setup-avatar-preview">Нет фото</div>
@@ -106,6 +107,7 @@
         <button class="btn-main" id="submitRegBtn" onclick="executeRegistration()" disabled>Принимаю условия & Погнали</button>
     </div>
 
+    <!-- ЛИСТ 3: Радар ленты -->
     <div id="screen-feed" class="screen">
         <div class="card-container" id="cardContainer"></div>
         <div class="buttons-container" id="feed-buttons">
@@ -114,16 +116,19 @@
         </div>
     </div>
 
+    <!-- ЛИСТ 4: Пустой Радар -->
     <div id="screen-empty" class="screen">
         <p>Рядом пока никого... 🫙<br>Разошли ссылку друзьям, чтобы наполнить карту!</p>
         <button class="btn-main" onclick="refreshFeed()">Обновить радар 🔄</button>
     </div>
 
+    <!-- ЛИСТ 5: Список взаимных матчей (Чаты) -->
     <div id="screen-matches" class="screen">
         <h2 style="margin-bottom: 15px; font-size: 18px; color: #888;">Твои совпадения 🍻</h2>
         <div id="matchesList" style="width: 100%;"></div>
     </div>
 
+    <!-- ЛИСТ 6: Комната чата -->
     <div id="screen-chat" class="screen">
         <button class="file-input-label" style="margin-bottom: 10px; padding: 6px 15px;" onclick="changeTab('matches')">⬅️ Назад к чатам</button>
         <div class="chat-history" id="chatHistory"></div>
@@ -133,6 +138,7 @@
         </div>
     </div>
 
+    <!-- ЛИСТ 7: Настройки профиля -->
     <div id="screen-profile" class="screen">
         <h2>Редактировать профиль 👤</h2>
         <div class="avatar-preview" id="profile-avatar-preview"></div>
@@ -142,9 +148,28 @@
         <input type="text" id="profile-alcohol" placeholder="Что сейчас пьешь?">
         <button class="btn-main" onclick="saveProfileChanges()">Сохранить изменения</button>
         
-        <button class="btn-main btn-danger" onclick="deleteUserAccount()">❌ Удалить мой аккаунт и стереть данные</button>
+        <!-- КНОПКА ПЕРЕХОДА НА ЛИСТ АВТОРСКИХ ПРАВ -->
+        <button class="btn-main" style="background:#444;" onclick="showScreen('screen-legal')">ℹ️ Юридическая информация</button>
+        
+        <button class="btn-main btn-danger" onclick="deleteUserAccount()">❌ Удалить мой аккаунт и данные</button>
     </div>
 
+    <!-- ЛИСТ 8: Манифест интеллектуальной собственности -->
+    <div id="screen-legal" class="screen" style="text-align: left;">
+        <button class="file-input-label" onclick="showScreen('screen-profile')">⬅️ Назад в профиль</button>
+        <div class="legal-text">
+ЗАЩИТА АВТОРСКИХ ПРАВ И ИНТЕЛЛЕКТУАЛЬНОЙ СОБСТВЕННОСТИ
+Все права защищены © 2026 Проект «КтоПойдет» (WhoIsGoing / AlkoTinder).
+
+Настоящее программное обеспечение, включая исходный код (HTML/JS/CSS), уникальную архитектуру базы данных (комбинация таблиц profiles, toasts, messages, legal_consents на базе Supabase), элементы пользовательского интерфейса, дизайн карточек, логику вычисления локационного радиуса (алгоритм Haversine/getDistance в рамках концепции локального радара алкогольной тематики), а также торговое наименование «КтоПойдет», являются объектами исключительных авторских прав и интеллектуальной собственности создателя проекта.
+
+Данный проект создан и базируется в Государстве Израиль и защищен Законом об авторском праве Израиля от 2007 года (חוק זכויות יוצרים, התש"ח-2007), а также Бернской конвенцией об охране литературных и художественных произведений и международными соглашениями об интеллектуальной собственности WIPO.
+
+Любое несанкционированное копирование, клонирование логики приложения, декомпиляция кода, создание зеркал, использование торговой марки или воспроизведение концепта "локального свайп-радара напитков со встроенным сквозным чатом" без письменного согласия правообладателя запрещено. Нарушение авторских прав влечет за собой гражданскую и уголовную ответственность, включая подачу судебных исков в суды Государства Израиль с требованием компенсации ущерба без необходимости доказывания размера вреда (פיצויים ללא הוכחת נזק) в соответствии со ст. 56 Закона об авторском праве.
+        </div>
+    </div>
+
+    <!-- НИЖНЕЕ МЕНЮ НАВИГАЦИИ -->
     <div class="nav-bar" id="bottom-nav">
         <button class="nav-btn active" id="btn-tab-feed" onclick="changeTab('feed')">
             <span class="nav-icon">🧭</span><span>Радар</span>
@@ -180,7 +205,8 @@
             document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
             document.getElementById(screenId).style.display = 'flex';
             
-            if(isUserVerified && screenId !== 'screen-loading') {
+            // Навигационный бар скрыт на этапе авторизации и лоадере, в остальных случаях - открыт
+            if(isUserVerified && screenId !== 'screen-loading' && screenId !== 'screen-setup') {
                 document.getElementById('bottom-nav').style.display = 'flex';
             } else {
                 document.getElementById('bottom-nav').style.display = 'none';
@@ -254,12 +280,12 @@
                         await loadFeed();
                     }
                 } catch (err) { alert(err.message); }
-            }, () => { alert("Включи GPS радара!"); });
+            }, () => { alert("Пожалуйста, включите GPS для работы радара!"); });
         }
 
         async function executeRegistration() {
             const checkbox = document.getElementById('agreeCheckbox');
-            if(!checkbox.checked) { alert("Вы должны принять условия!"); return; }
+            if(!checkbox.checked) return;
 
             const alcoholText = document.getElementById('setup-alcohol').value || "Ищу компанию";
             showScreen('screen-loading');
@@ -269,47 +295,7 @@
                 await db.from('profiles').insert([{ id: myId, name: myName, alcohol: alcoholText, lat: myLat, lng: myLng, avatar_url: myCurrentAvatar }]);
                 isUserVerified = true; 
                 await loadFeed();
-            } catch (err) { alert("Ошибка сохранения: " + err.message); showScreen('screen-setup'); }
-        }
-
-        // ФУНКЦИЯ ПОЛНОГО УДАЛЕНИЯ ПОЛЬЗОВАТЕЛЯ (Исключая таблицу соглашений)
-        async function deleteUserAccount() {
-            const firstConfirm = confirm("Вы уверены, что хотите полностью удалить свой профиль? Все ваши совпадения, чаты, сообщения и анкета будут стерты навсегда.");
-            if(!firstConfirm) return;
-            
-            const secondConfirm = confirm("ПОСЛЕДНЕЕ ПРЕДУПРЕЖДЕНИЕ: Это действие необратимо. Стереть данные?");
-            if(!secondConfirm) return;
-
-            showScreen('screen-loading');
-            document.getElementById('loading-text').innerText = "Стираем всю информацию из базы данных... 🧹";
-
-            try {
-                // 1. Стираем анкету из profiles
-                await db.from('profiles').delete().eq('id', myId);
-                // 2. Стираем все лайки/пассы (изнутри и снаружи)
-                await db.from('toasts').delete().or(`from_user.eq.${myId},to_user.eq.${myId}`);
-                // 3. Стираем переписку
-                await db.from('messages').delete().or(`from_user.eq.${myId},to_user.eq.${myId}`);
-
-                // Полностью сбрасываем состояние приложения
-                isUserVerified = false;
-                loadedUsers = [];
-                currentIndex = 0;
-                myCurrentAvatar = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500";
-
-                // Чистим интерфейс формы ввода
-                document.getElementById('setup-alcohol').value = '';
-                document.getElementById('agreeCheckbox').checked = false;
-                document.getElementById('submitRegBtn').disabled = true;
-                document.getElementById('setup-avatar-preview').style.backgroundImage = 'none';
-                document.getElementById('setup-avatar-preview').innerText = 'Нет фото';
-
-                alert("Все данные успешно удалены. Лог соглашения с правилами сохранен.");
-                showScreen('screen-setup');
-            } catch (err) {
-                alert("Ошибка удаления: " + err.message);
-                showScreen('screen-profile');
-            }
+            } catch (err) { alert(err.message); showScreen('screen-setup'); }
         }
 
         async function saveProfileChanges() {
@@ -415,12 +401,11 @@
             chatInterval = setInterval(loadMessages, 3000); 
         }
 
-        // ЗАГРУЗКА СООБЩЕНИЙ: Вытаскиваем только те, где флаг is_deleted равен false
         async function loadMessages() {
             if(!activeChatUserId) return;
             const { data: msgs } = await db.from('messages').select('*')
                 .or(`and(from_user.eq.${myId},to_user.eq.${activeChatUserId}),and(from_user.eq.${activeChatUserId},to_user.eq.${myId})`)
-                .eq('is_deleted', false) // СТРОГИЙ ФИЛЬТР: скрываем удаленные из UI
+                .eq('is_deleted', false) 
                 .order('created_at', { ascending: true });
             
             const history = document.getElementById('chatHistory');
@@ -435,7 +420,6 @@
                     textSpan.innerText = m.text;
                     div.appendChild(textSpan);
                     
-                    // Если сообщение мое — рисуем кнопку МЯГКОГО удаления
                     if(m.from_user === myId) {
                         const delBtn = document.createElement('span');
                         delBtn.className = "msg-del-btn";
@@ -443,14 +427,12 @@
                         delBtn.onclick = (e) => { e.stopPropagation(); deleteSingleMessage(m.id); };
                         div.appendChild(delBtn);
                     }
-                    
                     history.appendChild(div);
                 });
                 history.scrollTop = history.scrollHeight;
             }
         }
 
-        // МЯГКОЕ УДАЛЕНИЕ СООБЩЕНИЯ (Апдейт флага вместо хард-делита)
         async function deleteSingleMessage(msgId) {
             if(!confirm("Удалить это сообщение для всех?")) return;
             try {
@@ -466,6 +448,28 @@
             input.value = '';
             await db.from('messages').insert([{ from_user: myId, to_user: activeChatUserId, text: txt }]);
             await loadMessages();
+        }
+
+        async function deleteUserAccount() {
+            if(!confirm("Вы уверены, что хотите полностью удалить профиль? Это сотрет чаты и анкету.")) return;
+            if(!confirm("ПОСЛЕДНЕЕ ПРЕДУПРЕЖДЕНИЕ: Стереть данные безвозвратно?")) return;
+
+            showScreen('screen-loading');
+            try {
+                await db.from('profiles').delete().eq('id', myId);
+                await db.from('toasts').delete().or(`from_user.eq.${myId},to_user.eq.${myId}`);
+                await db.from('messages').delete().or(`from_user.eq.${myId},to_user.eq.${myId}`);
+
+                isUserVerified = false; loadedUsers = []; currentIndex = 0;
+                document.getElementById('setup-alcohol').value = '';
+                document.getElementById('agreeCheckbox').checked = false;
+                document.getElementById('submitRegBtn').disabled = true;
+                document.getElementById('setup-avatar-preview').style.backgroundImage = 'none';
+                document.getElementById('setup-avatar-preview').innerText = 'Нет фото';
+
+                alert("Все личные данные стерты. Юридический лог соглашения сохранен.");
+                showScreen('screen-setup');
+            } catch (err) { alert(err.message); showScreen('screen-profile'); }
         }
 
         init();

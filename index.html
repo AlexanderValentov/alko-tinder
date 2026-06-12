@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Кто Пойдет?</title>
-    
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     
@@ -12,69 +11,123 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; user-select: none; }
         body { background-color: #121212; color: #ffffff; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
         
-        header { padding: 15px; font-size: 20px; font-weight: bold; color: #ff9f43; text-align: center; width: 100%; border-bottom: 1px solid #222; background: #121212; z-index: 10; }
+        header { padding: 15px; font-size: 20px; font-weight: bold; color: #ff9f43; text-align: center; width: 100%; border-bottom: 1px solid #222; background: #121212; }
         
-        /* Базовый класс для всех экранов (листов) */
-        .screen { display: none; flex-direction: column; justify-content: center; align-items: center; flex-grow: 1; width: 100%; padding: 20px; text-align: center; box-sizing: border-box; }
+        /* Навигационная панель (Таб-бар) внизу */
+        .nav-bar { display: none; width: 100%; background: #1e1e1e; border-top: 1px solid #333; justify-content: space-around; padding: 10px 0; z-index: 100; }
+        .nav-btn { background: none; border: none; color: #888; font-size: 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .nav-btn.active { color: #ff9f43; font-weight: bold; }
+        .nav-icon { font-size: 20px; }
+
+        .screen { display: none; flex-direction: column; justify-content: center; align-items: center; flex-grow: 1; width: 100%; padding: 20px; text-align: center; overflow-y: auto; padding-bottom: 80px; }
         
-        /* Экран загрузки */
-        #screen-loading { font-size: 18px; color: #888; }
+        /* Экраны */
+        #screen-loading { display: flex; }
         .spinner { border: 4px solid rgba(255,159,67,0.1); border-left-color: #ff9f43; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 20px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Экран регистрации */
-        input { width: 100%; max-width: 300px; padding: 15px; background: #222; border: 1px solid #444; border-radius: 10px; color: white; font-size: 16px; margin: 20px 0; outline: none; text-align: center; }
-        .btn-main { background: #ff9f43; color: white; padding: 15px 40px; border-radius: 10px; border: none; font-size: 18px; font-weight: bold; cursor: pointer; transition: transform 0.1s; }
-        .btn-main:active { transform: scale(0.95); }
+        input[type="text"] { width: 100%; max-width: 300px; padding: 14px; background: #222; border: 1px solid #444; border-radius: 10px; color: white; font-size: 16px; margin: 15px 0; outline: none; text-align: center; }
+        .btn-main { background: #ff9f43; color: white; padding: 14px 40px; border-radius: 10px; border: none; font-size: 16px; font-weight: bold; cursor: pointer; }
+        
+        /* Загрузка фото */
+        .avatar-preview { width: 120px; height: 120px; border-radius: 50%; border: 2px dashed #ff9f43; background-size: cover; background-position: center; margin-bottom: 15px; display: flex; justify-content: center; align-items: center; color: #888; font-size: 12px; }
+        .file-input-label { background: #2d3436; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 14px; cursor: pointer; margin-bottom: 20px; border: 1px solid #444; }
 
-        /* Экран ленты */
-        #screen-feed { justify-content: space-between; padding: 10px 0 30px 0; }
-        .card-container { position: relative; flex-grow: 1; width: 90%; max-width: 360px; margin: 10px 0; display: flex; justify-content: center; align-items: center; }
+        /* Лента радара */
+        #screen-feed { justify-content: space-between; padding: 10px 0; }
+        .card-container { position: relative; flex-grow: 1; width: 90%; max-width: 360px; display: flex; justify-content: center; align-items: center; margin-bottom: 10px; }
         .card { position: absolute; width: 100%; height: 100%; background: #1e1e1e; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: flex; flex-direction: column; justify-content: flex-end; transition: transform 0.3s ease, opacity 0.3s ease; border: 1px solid #333; }
         .card-avatar { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; z-index: 1; }
         .card-info { position: relative; z-index: 2; padding: 20px; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 70%, transparent 100%); text-align: left; }
-        .user-name { font-size: 24px; font-weight: bold; margin-bottom: 5px; }
-        .user-distance { font-size: 14px; color: #10ac84; font-weight: 600; margin-bottom: 10px; }
-        .user-alcohol { background: rgba(255, 159, 67, 0.2); border: 1px solid #ff9f43; color: #ff9f43; padding: 8px 12px; border-radius: 10px; display: inline-block; font-size: 14px; font-weight: bold; }
-        
-        .buttons-container { width: 100%; max-width: 360px; display: flex; justify-content: space-around; z-index: 10; }
-        .btn-action { width: 70px; height: 70px; border-radius: 50%; border: none; font-size: 28px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: transform 0.1s ease; }
-        .btn-action:active { transform: scale(0.9); }
-        .btn-pass { background-color: #2d3436; color: #ff6b6b; border: 1px solid #444; }
+        .user-name { font-size: 24px; font-weight: bold; }
+        .user-distance { font-size: 13px; color: #10ac84; margin: 4px 0 10px 0; }
+        .user-alcohol { background: rgba(255, 159, 67, 0.2); border: 1px solid #ff9f43; color: #ff9f43; padding: 6px 12px; border-radius: 8px; display: inline-block; font-size: 13px; font-weight: bold; }
+        .buttons-container { width: 100%; max-width: 360px; display: flex; justify-content: space-around; }
+        .btn-action { width: 65px; height: 65px; border-radius: 50%; border: none; font-size: 26px; cursor: pointer; display: flex; justify-content: center; align-items: center; }
+        .btn-pass { background-color: #2d3436; color: #ff6b6b; }
         .btn-toast { background-color: #ff9f43; color: #fff; }
 
-        /* Экран "Никого нет" */
-        #screen-empty p { font-size: 18px; color: #888; margin-bottom: 25px; line-height: 1.5; }
+        /* Список чатов */
+        .match-item { width: 100%; max-width: 360px; background: #1e1e1e; padding: 15px; border-radius: 12px; display: flex; align-items: center; gap: 15px; margin-bottom: 10px; border: 1px solid #333; text-align: left; cursor: pointer; }
+        .match-avatar { width: 50px; height: 50px; border-radius: 50%; background-size: cover; background-position: center; background-color: #333; }
+        .match-name { font-size: 18px; font-weight: bold; }
+
+        /* Экран самого чата */
+        #screen-chat { padding: 10px; justify-content: space-between; }
+        .chat-history { flex-grow: 1; width: 100%; max-width: 360px; overflow-y: auto; background: #121212; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+        .msg { max-width: 75%; padding: 10px 14px; border-radius: 15px; font-size: 15px; text-align: left; word-break: break-word; }
+        .msg.sent { background: #ff9f43; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+        .msg.received { background: #222; color: white; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #333; }
+        .chat-input-container { width: 100%; max-width: 360px; display: flex; gap: 10px; margin-top: 10px; }
+        .chat-input { flex-grow: 1; padding: 12px; background: #222; border: 1px solid #444; border-radius: 8px; color: white; outline: none; }
     </style>
 </head>
 <body>
 
-    <header>🍻 КтоПойдет</header>
+    <header id="app-header">🍻 КтоПойдет</header>
 
-    <div id="screen-loading" class="screen" style="display: flex;">
+    <div id="screen-loading" class="screen">
         <div class="spinner"></div>
-        <p id="loading-text">Ищем твой радар... 🧭</p>
+        <p id="loading-text">Радар настраивается... 🧭</p>
     </div>
 
     <div id="screen-setup" class="screen">
-        <h2>Что у тебя с собой? 🍾</h2>
-        <p style="color: #888; margin-top: 5px; font-size: 14px;">Введи свой арсенал, чтобы тебя увидели на карте района</p>
-        <input type="text" id="alcoholInput" placeholder="Например: 0.7 Jack Daniels, пиво, вино">
-        <button class="btn-main" onclick="saveProfile()">Погнали</button>
+        <h2>Создай анкету 🚀</h2>
+        <div class="avatar-preview" id="setup-avatar-preview">Нет фото</div>
+        <label class="file-input-label">Выбрать фото с телефона
+            <input type="file" id="setup-file" accept="image/*" style="display:none;" onchange="handlePhotoUpload(this, 'setup-avatar-preview')">
+        </label>
+        <input type="text" id="setup-alcohol" placeholder="Что у тебя с собой в руках?">
+        <button class="btn-main" onclick="saveProfile(true)">Погнали</button>
     </div>
 
     <div id="screen-feed" class="screen">
-        <div class="card-container" id="cardContainer">
-            </div>
-        <div class="buttons-container">
+        <div class="card-container" id="cardContainer"></div>
+        <div class="buttons-container" id="feed-buttons">
             <button class="btn-action btn-pass" onclick="swipe('pass')">❌</button>
             <button class="btn-action btn-toast" onclick="swipe('toast')">🍻</button>
         </div>
     </div>
 
     <div id="screen-empty" class="screen">
-        <p>Пока никого нет рядом... 🫙<br>Позови друзей в бота, чтобы собраться вместе!</p>
+        <p>Рядом пока никого... 🫙<br>Разошли ссылку друзьям, чтобы наполнить карту!</p>
         <button class="btn-main" onclick="refreshFeed()">Обновить радар 🔄</button>
+    </div>
+
+    <div id="screen-matches" class="screen">
+        <h2 style="margin-bottom: 15px; font-size: 18px; color: #888;">Твои совпадения 🍻</h2>
+        <div id="matchesList" style="width: 100%;"></div>
+    </div>
+
+    <div id="screen-chat" class="screen">
+        <button class="file-input-label" style="margin-bottom: 10px; padding: 6px 15px;" onclick="changeTab('matches')">⬅️ Назад к чатам</button>
+        <div class="chat-history" id="chatHistory"></div>
+        <div class="chat-input-container">
+            <input type="text" id="chatMessageInput" class="chat-input" placeholder="Напиши что-нибудь...">
+            <button class="btn-main" style="padding: 10px 20px; border-radius: 8px;" onclick="sendMessage()">➡️</button>
+        </div>
+    </div>
+
+    <div id="screen-profile" class="screen">
+        <h2>Редактировать профиль 👤</h2>
+        <div class="avatar-preview" id="profile-avatar-preview"></div>
+        <label class="file-input-label">Изменить фото
+            <input type="file" id="profile-file" accept="image/*" style="display:none;" onchange="handlePhotoUpload(this, 'profile-avatar-preview')">
+        </label>
+        <input type="text" id="profile-alcohol" placeholder="Что сейчас пьешь?">
+        <button class="btn-main" onclick="saveProfile(false)">Сохранить изменения</button>
+    </div>
+
+    <div class="nav-bar" id="bottom-nav">
+        <button class="nav-btn active" id="btn-tab-feed" onclick="changeTab('feed')">
+            <span class="nav-icon">🧭</span><span>Радар</span>
+        </button>
+        <button class="nav-btn" id="btn-tab-matches" onclick="changeTab('matches')">
+            <span class="nav-icon">💬</span><span>Чаты</span>
+        </button>
+        <button class="nav-btn" id="btn-tab-profile" onclick="changeTab('profile')">
+            <span class="nav-icon">👤</span><span>Профиль</span>
+        </button>
     </div>
 
     <script>
@@ -83,26 +136,54 @@
 
         const SUPABASE_URL = "https://cxelorovgbkpynpioohh.supabase.co";
         const SUPABASE_KEY = "sb_publishable_Ua8aV1G_PsMy8fOfhrXCuA_MQQNPoo9";
-
-        let db = null;
-        if (window.supabase) {
-            db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        } else {
-            alert("Ошибка загрузки сети. Отключи VPN или блокировщик рекламы.");
-        }
+        const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let myId = tg?.initDataUnsafe?.user?.id || 77777; 
         let myName = tg?.initDataUnsafe?.user?.first_name || "Тестовый Юзер";
-        let myLat = 0;
-        let myLng = 0;
+        let myLat = 0, myLng = 0;
+        let myCurrentAvatar = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500"; // дефолт
         
         let loadedUsers = [];
         let currentIndex = 0;
+        let activeChatUserId = null;
+        let chatInterval = null;
 
-        // Переключатель экранов
         function showScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
             document.getElementById(screenId).style.display = 'flex';
+            if(screenId !== 'screen-loading' && screenId !== 'screen-setup') {
+                document.getElementById('bottom-nav').style.display = 'flex';
+            }
+        }
+
+        function changeTab(tabName) {
+            clearInterval(chatInterval);
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            if(tabName === 'feed') {
+                document.getElementById('btn-tab-feed').classList.add('active');
+                if(loadedUsers.length === 0 || currentIndex >= loadedUsers.length) showScreen('screen-empty');
+                else showScreen('screen-feed');
+            } else if(tabName === 'matches') {
+                document.getElementById('btn-tab-matches').classList.add('active');
+                loadMatchesList();
+            } else if(tabName === 'profile') {
+                document.getElementById('btn-tab-profile').classList.add('active');
+                showScreen('screen-profile');
+            }
+        }
+
+        // Перевод картинки смартфона в текстовую строку Base64
+        function handlePhotoUpload(input, previewId) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onloadend = function() {
+                myCurrentAvatar = reader.result;
+                document.getElementById(previewId).style.backgroundImage = `url('${reader.result}')`;
+                document.getElementById(previewId).innerText = '';
+            }
+            reader.readAsDataURL(file);
         }
 
         function getDistance(lat1, lon1, lat2, lon2) {
@@ -110,169 +191,163 @@
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
             const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return R * c;
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         }
 
         async function init() {
-            if (!db) return;
             showScreen('screen-loading');
-            document.getElementById('loading-text').innerText = "Запрашиваем GPS координаты... 📍";
-
             navigator.geolocation.getCurrentPosition(async (position) => {
                 myLat = position.coords.latitude;
                 myLng = position.coords.longitude;
-                document.getElementById('loading-text').innerText = "Проверяем профиль... 🔐";
-
                 try {
-                    const { data: user, error } = await db.from('profiles').select('*').eq('id', myId).maybeSingle();
-                    if (error) throw error;
-
+                    const { data: user } = await db.from('profiles').select('*').eq('id', myId).maybeSingle();
                     if (!user) {
                         showScreen('screen-setup');
                     } else {
+                        myCurrentAvatar = user.avatar_url;
+                        document.getElementById('profile-avatar-preview').style.backgroundImage = `url('${user.avatar_url}')`;
+                        document.getElementById('profile-alcohol').value = user.alcohol;
                         await db.from('profiles').update({ lat: myLat, lng: myLng }).eq('id', myId);
                         await loadFeed();
                     }
-                } catch (err) {
-                    alert("Ошибка базы данных: " + err.message);
-                    showScreen('screen-empty');
-                }
-            }, () => {
-                alert("Пожалуйста, включи GPS на устройстве, иначе радар не сможет рассчитать расстояние.");
-                showScreen('screen-empty');
-            });
+                } catch (err) { alert(err.message); }
+            }, () => { alert("Включи GPS радара!"); });
         }
 
-        async function saveProfile() {
-            if (!db) return;
-            const alcoholText = document.getElementById('alcoholInput').value || "Ищу компанию";
-            const defaultAvatar = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500";
-
+        async function saveProfile(isFirstTime) {
+            const alcoholText = document.getElementById(isFirstTime ? 'setup-alcohol' : 'profile-alcohol').value || "Ищу компанию";
             showScreen('screen-loading');
-            document.getElementById('loading-text').innerText = "Создаем профиль... 🚀";
-
             try {
-                const { error } = await db.from('profiles').insert([
-                    { id: myId, name: myName, alcohol: alcoholText, lat: myLat, lng: myLng, avatar_url: defaultAvatar }
-                ]);
-                if (error) throw error;
-
+                if(isFirstTime) {
+                    await db.from('profiles').insert([{ id: myId, name: myName, alcohol: alcoholText, lat: myLat, lng: myLng, avatar_url: myCurrentAvatar }]);
+                } else {
+                    await db.from('profiles').update({ alcohol: alcoholText, avatar_url: myCurrentAvatar }).eq('id', myId);
+                }
                 await loadFeed();
-            } catch (err) {
-                alert("Не удалось сохранить профиль: " + err.message);
-                showScreen('screen-setup');
-            }
+                changeTab('feed');
+            } catch (err) { alert(err.message); }
         }
 
         async function loadFeed() {
-            if (!db) return;
             try {
-                const { data: users, error } = await db.from('profiles').select('*').neq('id', myId);
-                if (error) throw error;
+                const { data: users } = await db.from('profiles').select('*').neq('id', myId);
+                if (!users || users.length === 0) { showScreen('screen-empty'); return; }
 
-                if (!users || users.length === 0) {
-                    showScreen('screen-empty');
-                    return;
-                }
-
-                loadedUsers = users.map(u => {
-                    const dist = getDistance(myLat, myLng, u.lat, u.lng);
-                    return { ...u, distanceInKm: dist };
-                }).sort((a, b) => a.distanceInKm - b.distanceInKm);
-
-                currentIndex = 0; // Сбрасываем индекс перед рендером
+                loadedUsers = users.map(u => ({ ...u, distanceInKm: getDistance(myLat, myLng, u.lat, u.lng) }))
+                                   .sort((a, b) => a.distanceInKm - b.distanceInKm);
+                currentIndex = 0;
                 renderFeed();
-            } catch (err) {
-                alert("Ошибка загрузки ленты: " + err.message);
-                showScreen('screen-empty');
-            }
+            } catch (e) { showScreen('screen-empty'); }
         }
 
         function renderFeed() {
             const container = document.getElementById('cardContainer');
             container.innerHTML = '';
-            
-            if (loadedUsers.length === 0 || currentIndex >= loadedUsers.length) {
-                showScreen('screen-empty');
-                return;
-            }
+            if (currentIndex >= loadedUsers.length) { showScreen('screen-empty'); return; }
 
-            // Рендерим карточки начиная с текущего индекса
             for (let i = loadedUsers.length - 1; i >= currentIndex; i--) {
                 const user = loadedUsers[i];
                 const card = document.createElement('div');
-                card.className = 'card';
-                card.id = `card-${i}`;
-                card.style.zIndex = loadedUsers.length - i;
-
-                const distStr = user.distanceInKm < 1 
-                    ? `${Math.round(user.distanceInKm * 1000)} метров от тебя` 
-                    : `${user.distanceInKm.toFixed(1)} км от тебя`;
-
-                card.innerHTML = `
-                    <div class="card-avatar" style="background-image: url('${user.avatar_url}')"></div>
-                    <div class="card-info">
-                        <div class="user-name">${user.name}</div>
-                        <div class="user-distance">📍 ${distStr}</div>
-                        <div class="user-alcohol">${user.alcohol}</div>
-                    </div>
-                `;
+                card.className = 'card'; card.id = `card-${i}`; card.style.zIndex = loadedUsers.length - i;
+                const dist = user.distanceInKm < 1 ? `${Math.round(user.distanceInKm * 1000)} м` : `${user.distanceInKm.toFixed(1)} км`;
+                card.innerHTML = `<div class="card-avatar" style="background-image: url('${user.avatar_url}')"></div>
+                    <div class="card-info"><div class="user-name">${user.name}</div><div class="user-distance">📍 ${dist} от тебя</div>
+                    <div class="user-alcohol">${user.alcohol}</div></div>`;
                 container.appendChild(card);
             }
             showScreen('screen-feed');
         }
 
-        async function refreshFeed() {
-            showScreen('screen-loading');
-            document.getElementById('loading-text').innerText = "Обновляем радар... 🔄";
-            
-            navigator.geolocation.getCurrentPosition(async (position) => {
-                myLat = position.coords.latitude;
-                myLng = position.coords.longitude;
-                try {
-                    await db.from('profiles').update({ lat: myLat, lng: myLng }).eq('id', myId);
-                    await loadFeed();
-                } catch (e) {
-                    await loadFeed();
-                }
-            }, async () => {
-                await loadFeed();
-            });
-        }
-
         async function swipe(action) {
-            if (!db || currentIndex >= loadedUsers.length) return;
-
+            if (currentIndex >= loadedUsers.length) return;
             const targetUser = loadedUsers[currentIndex];
-            const currentCard = document.getElementById(`card-${currentIndex}`);
+            const card = document.getElementById(`card-${currentIndex}`);
             
             if (action === 'toast') {
-                if(currentCard) currentCard.style.transform = 'translateX(150vw) rotate(30deg)';
-                
+                if(card) card.style.transform = 'translateX(150vw) rotate(30deg)';
                 await db.from('toasts').insert([{ from_user: myId, to_user: targetUser.id }]);
-
-                const { data: match } = await db.from('toasts')
-                    .select('*')
-                    .eq('from_user', targetUser.id)
-                    .eq('to_user', myId);
-
+                const { data: match } = await db.from('toasts').select('*').eq('from_user', targetUser.id).eq('to_user', myId);
                 if (match && match.length > 0) {
-                    setTimeout(() => {
-                        alert(`🍻 Взаимный тост с ${targetUser.name}! Напиши ему в TG: tg://user?id=${targetUser.id}`);
-                    }, 400);
+                    alert(`🍻 Взаимный тост с ${targetUser.name}! Зайди во вкладку Чаты!`);
                 }
             } else {
-                if(currentCard) currentCard.style.transform = 'translateX(-150vw) rotate(-30deg)';
+                if(card) card.style.transform = 'translateX(-150vw) rotate(-30deg)';
             }
-            if(currentCard) currentCard.style.opacity = '0';
-
+            if(card) card.style.opacity = '0';
             currentIndex++;
-            if (currentIndex >= loadedUsers.length) {
-                setTimeout(() => {
-                    showScreen('screen-empty');
-                }, 300);
+            if (currentIndex >= loadedUsers.length) setTimeout(() => showScreen('screen-empty'), 200);
+        }
+
+        async function refreshFeed() { await loadFeed(); changeTab('feed'); }
+
+        // ЗАГРУЗКА СПИСКА ВЗАИМНЫХ СОВПАДЕНИЙ
+        async function loadMatchesList() {
+            showScreen('screen-loading');
+            const { data: myLkes } = await db.from('toasts').select('to_user').eq('from_user', myId);
+            const { data: whoLikedMe } = await db.from('toasts').select('from_user').eq('to_user', myId);
+            
+            if(!myLkes || !whoLikedMe) { displayEmptyMatches(); return; }
+            
+            const myLikedIds = myLkes.map(l => l.to_user);
+            const mutualIds = whoLikedMe.map(l => l.from_user).filter(id => myLikedIds.includes(id));
+
+            if(mutualIds.length === 0) { displayEmptyMatches(); return; }
+
+            const { data: profiles } = await db.from('profiles').select('*').in('id', mutualIds);
+            const listContainer = document.getElementById('matchesList');
+            listContainer.innerHTML = '';
+            
+            profiles.forEach(p => {
+                const item = document.createElement('div');
+                item.className = 'match-item';
+                item.onclick = () => openChatRoom(p.id, p.name);
+                item.innerHTML = `<div class="match-avatar" style="background-image: url('${p.avatar_url}')"></div>
+                                  <div class="match-name">${p.name} 🍻</div>`;
+                listContainer.appendChild(item);
+            });
+            showScreen('screen-matches');
+        }
+
+        function displayEmptyMatches() {
+            document.getElementById('matchesList').innerHTML = '<p style="color:#666; margin-top:30px;">Пока нет взаимных тостов.</p>';
+            showScreen('screen-matches');
+        }
+
+        // ЛОГИКА ВНУТРЕННЕГО ЧАТА
+        function openChatRoom(targetUserId, targetName) {
+            activeChatUserId = targetUserId;
+            document.getElementById('app-header').innerText = `Чат с ${targetName}`;
+            showScreen('screen-chat');
+            loadMessages();
+            chatInterval = setInterval(loadMessages, 3000); // автообновление сообщений раз в 3 сек
+        }
+
+        async function loadMessages() {
+            if(!activeChatUserId) return;
+            const { data: msgs } = await db.from('messages').select('*')
+                .or(`and(from_user.eq.${myId},to_user.eq.${activeChatUserId}),and(from_user.eq.${activeChatUserId},to_user.eq.${myId})`)
+                .order('created_at', { ascending: true });
+            
+            const history = document.getElementById('chatHistory');
+            history.innerHTML = '';
+            if(msgs) {
+                msgs.forEach(m => {
+                    const div = document.createElement('div');
+                    div.className = `msg ${m.from_user === myId ? 'sent' : 'received'}`;
+                    div.innerText = m.text;
+                    history.appendChild(div);
+                });
+                history.scrollTop = history.scrollHeight;
             }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatMessageInput');
+            const txt = input.value.trim();
+            if(!txt || !activeChatUserId) return;
+            input.value = '';
+            await db.from('messages').insert([{ from_user: myId, to_user: activeChatUserId, text: txt }]);
+            await loadMessages();
         }
 
         init();

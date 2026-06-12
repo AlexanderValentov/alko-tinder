@@ -13,27 +13,36 @@
         
         header { padding: 15px; font-size: 20px; font-weight: bold; color: #ff9f43; text-align: center; width: 100%; border-bottom: 1px solid #222; background: #121212; }
         
-        /* Навигационная панель (Таб-бар) внизу */
+        /* Панель навигации скрыта наглухо по умолчанию */
         .nav-bar { display: none; width: 100%; background: #1e1e1e; border-top: 1px solid #333; justify-content: space-around; padding: 10px 0; z-index: 100; }
-        .nav-btn { background: none; border: none; color: #888; font-size: 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .nav-btn { background: none; border: none; color: #888; font-size: 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 33%; }
         .nav-btn.active { color: #ff9f43; font-weight: bold; }
         .nav-icon { font-size: 20px; }
 
-        .screen { display: none; flex-direction: column; justify-content: center; align-items: center; flex-grow: 1; width: 100%; padding: 20px; text-align: center; overflow-y: auto; padding-bottom: 80px; }
+        .screen { display: none; flex-direction: column; justify-content: center; align-items: center; flex-grow: 1; width: 100%; padding: 20px; text-align: center; overflow-y: auto; padding-bottom: 40px; }
         
-        /* Экраны */
         #screen-loading { display: flex; }
         .spinner { border: 4px solid rgba(255,159,67,0.1); border-left-color: #ff9f43; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 20px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         input[type="text"] { width: 100%; max-width: 300px; padding: 14px; background: #222; border: 1px solid #444; border-radius: 10px; color: white; font-size: 16px; margin: 15px 0; outline: none; text-align: center; }
-        .btn-main { background: #ff9f43; color: white; padding: 14px 40px; border-radius: 10px; border: none; font-size: 16px; font-weight: bold; cursor: pointer; }
         
-        /* Загрузка фото */
-        .avatar-preview { width: 120px; height: 120px; border-radius: 50%; border: 2px dashed #ff9f43; background-size: cover; background-position: center; margin-bottom: 15px; display: flex; justify-content: center; align-items: center; color: #888; font-size: 12px; }
-        .file-input-label { background: #2d3436; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 14px; cursor: pointer; margin-bottom: 20px; border: 1px solid #444; }
+        /* Стили кнопки «Погнали» и её заблокированного состояния */
+        .btn-main { background: #ff9f43; color: white; padding: 14px 40px; border-radius: 10px; border: none; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; max-width: 300px; transition: all 0.2s; }
+        .btn-main:disabled { background: #2d3436; color: #666; cursor: not-allowed; opacity: 0.6; }
+        
+        /* Юридический блок */
+        .disclaimer-box { width: 100%; max-width: 300px; background: #1e1e1e; border: 1px solid #333; border-radius: 12px; padding: 12px; font-size: 11px; color: #aaa; text-align: left; line-height: 1.4; margin-bottom: 15px; max-height: 110px; overflow-y: auto; }
+        .disclaimer-box b { color: #ff6b6b; display: block; margin-bottom: 4px; text-transform: uppercase; font-size: 12px; }
+        
+        /* Чекбокс согласия */
+        .checkbox-container { display: flex; align-items: center; gap: 10px; width: 100%; max-width: 300px; text-align: left; font-size: 13px; color: #ff9f43; margin-bottom: 20px; cursor: pointer; }
+        .checkbox-container input { width: 18px; height: 18px; cursor: pointer; accent-color: #ff9f43; }
 
-        /* Лента радара */
+        .avatar-preview { width: 110px; height: 110px; border-radius: 50%; border: 2px dashed #ff9f43; background-size: cover; background-position: center; margin-bottom: 12px; display: flex; justify-content: center; align-items: center; color: #888; font-size: 12px; }
+        .file-input-label { background: #2d3436; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; cursor: pointer; margin-bottom: 15px; border: 1px solid #444; }
+
+        /* Радар */
         #screen-feed { justify-content: space-between; padding: 10px 0; }
         .card-container { position: relative; flex-grow: 1; width: 90%; max-width: 360px; display: flex; justify-content: center; align-items: center; margin-bottom: 10px; }
         .card { position: absolute; width: 100%; height: 100%; background: #1e1e1e; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: flex; flex-direction: column; justify-content: flex-end; transition: transform 0.3s ease, opacity 0.3s ease; border: 1px solid #333; }
@@ -47,12 +56,11 @@
         .btn-pass { background-color: #2d3436; color: #ff6b6b; }
         .btn-toast { background-color: #ff9f43; color: #fff; }
 
-        /* Список чатов */
+        /* Чаты */
         .match-item { width: 100%; max-width: 360px; background: #1e1e1e; padding: 15px; border-radius: 12px; display: flex; align-items: center; gap: 15px; margin-bottom: 10px; border: 1px solid #333; text-align: left; cursor: pointer; }
         .match-avatar { width: 50px; height: 50px; border-radius: 50%; background-size: cover; background-position: center; background-color: #333; }
         .match-name { font-size: 18px; font-weight: bold; }
 
-        /* Экран самого чата */
         #screen-chat { padding: 10px; justify-content: space-between; }
         .chat-history { flex-grow: 1; width: 100%; max-width: 360px; overflow-y: auto; background: #121212; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
         .msg { max-width: 75%; padding: 10px 14px; border-radius: 15px; font-size: 15px; text-align: left; word-break: break-word; }
@@ -78,7 +86,18 @@
             <input type="file" id="setup-file" accept="image/*" style="display:none;" onchange="handlePhotoUpload(this, 'setup-avatar-preview')">
         </label>
         <input type="text" id="setup-alcohol" placeholder="Что у тебя с собой в руках?">
-        <button class="btn-main" onclick="saveProfile(true)">Погнали</button>
+        
+        <div class="disclaimer-box">
+            <b>הצהרת אי-אחריות / Отказ от ответственности</b>
+            Данная платформа является исключительно техническим посредником (פלטפורמה טכנולוגית תיווכת). Администрация и разработчик приложения не несут никакой ответственности (הסרת כל אחריות משפטית) за содержание чатов, текстовые сообщения, личные встречи, действия пользователей или любые последствия использования сервиса. В соответствии с законодательством Государства Израиль, каждый пользователь берет на себя полную, единоличную и исключительную гражданскую и уголовную ответственность за свою безопасность и свои действия. Нажимая кнопку ниже, вы подтверждаете свое совершеннолетие и полностью освобождаете создателей платформы от любых юридических претензий.
+        </div>
+        
+        <label class="checkbox-container">
+            <input type="checkbox" id="agreeCheckbox" onchange="toggleSubmitButton()">
+            <span>Я принимаю все условия соглашения</span>
+        </label>
+        
+        <button class="btn-main" id="submitRegBtn" onclick="executeRegistration()" disabled>Принимаю условия & Погнали</button>
     </div>
 
     <div id="screen-feed" class="screen">
@@ -104,7 +123,7 @@
         <div class="chat-history" id="chatHistory"></div>
         <div class="chat-input-container">
             <input type="text" id="chatMessageInput" class="chat-input" placeholder="Напиши что-нибудь...">
-            <button class="btn-main" style="padding: 10px 20px; border-radius: 8px;" onclick="sendMessage()">➡️</button>
+            <button class="btn-main" style="padding: 10px 20px; border-radius: 8px; width: auto;" onclick="sendMessage()">➡️</button>
         </div>
     </div>
 
@@ -114,8 +133,8 @@
         <label class="file-input-label">Изменить фото
             <input type="file" id="profile-file" accept="image/*" style="display:none;" onchange="handlePhotoUpload(this, 'profile-avatar-preview')">
         </label>
-        <input type="text" id="profile-alcohol" placeholder="Что сейчас пьешь?">
-        <button class="btn-main" onclick="saveProfile(false)">Сохранить изменения</button>
+        <input type="text" id="profile-alcohol" placeholder="What are you drinking now?">
+        <button class="btn-main" onclick="saveProfileChanges()">Сохранить изменения</button>
     </div>
 
     <div class="nav-bar" id="bottom-nav">
@@ -141,24 +160,37 @@
         let myId = tg?.initDataUnsafe?.user?.id || 77777; 
         let myName = tg?.initDataUnsafe?.user?.first_name || "Тестовый Юзер";
         let myLat = 0, myLng = 0;
-        let myCurrentAvatar = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500"; // дефолт
+        let myCurrentAvatar = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500"; 
         
         let loadedUsers = [];
         let currentIndex = 0;
         let activeChatUserId = null;
         let chatInterval = null;
+        let isUserVerified = false; // Флаг прохождения соглашения
 
         function showScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
             document.getElementById(screenId).style.display = 'flex';
-            if(screenId !== 'screen-loading' && screenId !== 'screen-setup') {
+            
+            // Если пользователь подтвердил соглашение, открываем меню, иначе — блок!
+            if(isUserVerified && screenId !== 'screen-loading') {
                 document.getElementById('bottom-nav').style.display = 'flex';
+            } else {
+                document.getElementById('bottom-nav').style.display = 'none';
             }
         }
 
+        // Активация кнопки регистрации по галочке
+        function toggleSubmitButton() {
+            const checkbox = document.getElementById('agreeCheckbox');
+            document.getElementById('submitRegBtn').disabled = !checkbox.checked;
+        }
+
         function changeTab(tabName) {
+            if(!isUserVerified) return; // Жесткая защита от кликов по табу до соглашения
             clearInterval(chatInterval);
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('app-header').innerText = "🍻 КтоПойдет";
             
             if(tabName === 'feed') {
                 document.getElementById('btn-tab-feed').classList.add('active');
@@ -173,7 +205,6 @@
             }
         }
 
-        // Перевод картинки смартфона в текстовую строку Base64
         function handlePhotoUpload(input, previewId) {
             const file = input.files[0];
             if (!file) return;
@@ -200,35 +231,63 @@
                 myLat = position.coords.latitude;
                 myLng = position.coords.longitude;
                 try {
-                    const { data: user } = await db.from('profiles').select('*').eq('id', myId).maybeSingle();
-                    if (!user) {
+                    // Проверяем, давал ли пользователь соглашение когда-либо
+                    const { data: consent } = await db.from('legal_consents').select('*').eq('user_id', myId).maybeSingle();
+                    
+                    if (!consent) {
+                        isUserVerified = false;
                         showScreen('screen-setup');
                     } else {
-                        myCurrentAvatar = user.avatar_url;
-                        document.getElementById('profile-avatar-preview').style.backgroundImage = `url('${user.avatar_url}')`;
-                        document.getElementById('profile-alcohol').value = user.alcohol;
-                        await db.from('profiles').update({ lat: myLat, lng: myLng }).eq('id', myId);
+                        isUserVerified = true;
+                        const { data: user } = await db.from('profiles').select('*').eq('id', myId).maybeSingle();
+                        if(user) {
+                            myCurrentAvatar = user.avatar_url;
+                            document.getElementById('profile-avatar-preview').style.backgroundImage = `url('${user.avatar_url}')`;
+                            document.getElementById('profile-alcohol').value = user.alcohol;
+                            await db.from('profiles').update({ lat: myLat, lng: myLng }).eq('id', myId);
+                        }
                         await loadFeed();
                     }
                 } catch (err) { alert(err.message); }
             }, () => { alert("Включи GPS радара!"); });
         }
 
-        async function saveProfile(isFirstTime) {
-            const alcoholText = document.getElementById(isFirstTime ? 'setup-alcohol' : 'profile-alcohol').value || "Ищу компанию";
+        // КНОПКА РЕГИСТРАЦИИ (Выполняется один раз в жизни юзера)
+        async function executeRegistration() {
+            const checkbox = document.getElementById('agreeCheckbox');
+            if(!checkbox.checked) { alert("Вы должны принять условия!"); return; }
+
+            const alcoholText = document.getElementById('setup-alcohol').value || "Ищу компанию";
+            showScreen('screen-loading');
+
+            try {
+                // 1. Записываем юридическое согласие в ЛОГ-ТАБЛИЦУ (время сервер поставит сам через default now())
+                await db.from('legal_consents').insert([{ user_id: myId, user_name: myName }]);
+                
+                // 2. Создаем карточку в профилях
+                await db.from('profiles').insert([{ id: myId, name: myName, alcohol: alcoholText, lat: myLat, lng: myLng, avatar_url: myCurrentAvatar }]);
+                
+                isUserVerified = true; // Снимаем блокировку приложения!
+                await loadFeed();
+            } catch (err) { 
+                alert("Ошибка сохранения: " + err.message); 
+                showScreen('screen-setup'); 
+            }
+        }
+
+        // Изменение профиля из настроек (для старых юзеров)
+        async function saveProfileChanges() {
+            const alcoholText = document.getElementById('profile-alcohol').value || "Ищу компанию";
             showScreen('screen-loading');
             try {
-                if(isFirstTime) {
-                    await db.from('profiles').insert([{ id: myId, name: myName, alcohol: alcoholText, lat: myLat, lng: myLng, avatar_url: myCurrentAvatar }]);
-                } else {
-                    await db.from('profiles').update({ alcohol: alcoholText, avatar_url: myCurrentAvatar }).eq('id', myId);
-                }
+                await db.from('profiles').update({ alcohol: alcoholText, avatar_url: myCurrentAvatar }).eq('id', myId);
                 await loadFeed();
                 changeTab('feed');
-            } catch (err) { alert(err.message); }
+            } catch (err) { alert(err.message); showScreen('screen-profile'); }
         }
 
         async function loadFeed() {
+            if(!isUserVerified) return;
             try {
                 const { data: users } = await db.from('profiles').select('*').neq('id', myId);
                 if (!users || users.length === 0) { showScreen('screen-empty'); return; }
@@ -268,7 +327,7 @@
                 await db.from('toasts').insert([{ from_user: myId, to_user: targetUser.id }]);
                 const { data: match } = await db.from('toasts').select('*').eq('from_user', targetUser.id).eq('to_user', myId);
                 if (match && match.length > 0) {
-                    alert(`🍻 Взаимный тост с ${targetUser.name}! Зайди во вкладку Чаты!`);
+                    alert(`🍻 Взаимный тост с ${targetUser.name}! Переходи в раздел Чаты.`);
                 }
             } else {
                 if(card) card.style.transform = 'translateX(-150vw) rotate(-30deg)';
@@ -278,9 +337,8 @@
             if (currentIndex >= loadedUsers.length) setTimeout(() => showScreen('screen-empty'), 200);
         }
 
-        async function refreshFeed() { await loadFeed(); changeTab('feed'); }
+        async function refreshFeed() { await loadFeed(); if(isUserVerified) changeTab('feed'); }
 
-        // ЗАГРУЗКА СПИСКА ВЗАИМНЫХ СОВПАДЕНИЙ
         async function loadMatchesList() {
             showScreen('screen-loading');
             const { data: myLkes } = await db.from('toasts').select('to_user').eq('from_user', myId);
@@ -313,13 +371,12 @@
             showScreen('screen-matches');
         }
 
-        // ЛОГИКА ВНУТРЕННЕГО ЧАТА
         function openChatRoom(targetUserId, targetName) {
             activeChatUserId = targetUserId;
             document.getElementById('app-header').innerText = `Чат с ${targetName}`;
             showScreen('screen-chat');
             loadMessages();
-            chatInterval = setInterval(loadMessages, 3000); // автообновление сообщений раз в 3 сек
+            chatInterval = setInterval(loadMessages, 3000); 
         }
 
         async function loadMessages() {

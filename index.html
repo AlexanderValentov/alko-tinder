@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Кто Пойдет?!!</title>
+    <title>Кто Пойдет?</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Подключаем библиотеку Supabase напрямую без установки -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; user-select: none; }
@@ -31,11 +30,10 @@
 </head>
 <body>
 
-    <!-- Экран ввода алкоголя (показывается новичкам) -->
     <div class="setup-screen" id="setupScreen" style="display: none;">
         <h2>Что у тебя с собой? 🍾</h2>
-        <p>Саня уже ждет со своими 0.7. А с чем придешь ты?</p>
-        <input type="text" id="alcoholInput" placeholder="Например: 2л пива, виски, ищу компанию">
+        <p>Введи свой арсенал, чтобы тебя увидели на карте района</p>
+        <input type="text" id="alcoholInput" placeholder="Например: 0.7 Jack Daniels, пиво, вино">
         <button class="btn-start" onclick="saveProfile()">Погнали</button>
     </div>
 
@@ -43,7 +41,7 @@
 
     <div class="card-container" id="cardContainer">
         <div class="no-profiles" id="noProfiles">
-            <p>Никого рядом нет... 🫙<br>Поделитесь ботом с друзьями на районе!</p>
+            <p>Никого рядом нет... 🫙<br>Добавь фейк-аккаунт в Supabase для теста!</p>
         </div>
     </div>
 
@@ -53,87 +51,96 @@
     </div>
 
     <script>
-        // Инициализация Telegram SDK
         const tg = window.Telegram?.WebApp;
         if (tg) { tg.ready(); tg.expand(); }
 
-        // ДАННЫЕ СУПАБЕЙС (ВСТАВЬ СВОИ)
+        // --- ВСТАВЬ СВОИ ДАННЫЕ СЮДА ---
+     // ДАННЫЕ СУПАБЕЙС (ВСТАВЬ СВОИ)
         const SUPABASE_URL = "https://cxelorovgbkpynpioohh.supabase.co"; // ЗАМЕНИ_НА_СВОЙ_URL
         const SUPABASE_KEY = "sb_publishable_Ua8aV1G_PsMy8fOfhrXCuA_MQQNPoo9"; // ЗАМЕНИ_НА_СВОЙ_КЛЮЧ
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Переменные пользователя (дефолтные значения на случай теста на ПК)
-        let myId = tg?.initDataUnsafe?.user?.id || 99999;
-        let myName = tg?.initDataUnsafe?.user?.first_name || "Аноним";
+
+        // ------------------------------
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let myId = tg?.initDataUnsafe?.user?.id || 77777; 
+        let myName = tg?.initDataUnsafe?.user?.first_name || "Тестовый Юзер";
         let myLat = 0;
         let myLng = 0;
         
         let loadedUsers = [];
         let currentIndex = 0;
 
-        // Формула вычисления расстояния между координатами в км
         function getDistance(lat1, lon1, lat2, lon2) {
             const R = 6371;
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
             const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
-            const c = 2 * Math.atan2(sqrt(a), sqrt(1-a));
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
             return R * c;
         }
 
-        // Главная функция старта
         async function init() {
-            // 1. Запрашиваем геолокацию устройства
             navigator.geolocation.getCurrentPosition(async (position) => {
                 myLat = position.coords.latitude;
                 myLng = position.coords.longitude;
 
-                // 2. Проверяем, есть ли уже этот юзер в базе
-                const { data: user } = await supabase.from('profiles').select('*').eq('id', myId).single();
+                try {
+                    const { data: user, error } = await supabase.from('profiles').select('*').eq('id', myId).maybeSingle();
+                    
+                    if (error) throw error;
 
-                if (!user) {
-                    // Если юзера нет, показываем экран «Что у тебя с собой»
-                    document.getElementById('setupScreen').style.display = 'flex';
-                } else {
-                    // Если есть, обновляем его координаты и загружаем ленту
-                    await supabase.from('profiles').update({ lat: myLat, lng: myLng }).eq('id', myId);
-                    loadFeed();
+                    if (!user) {
+                        document.getElementById('setupScreen').style.display = 'flex';
+                    } else {
+                        await supabase.from('profiles').update({ lat: myLat, lng: myLng }).eq('id', myId);
+                        loadFeed();
+                    }
+                } catch (err) {
+                    alert("Ошибка базы данных: " + err.message);
                 }
             }, () => {
-                alert("Без GPS мы не найдем собутыльников рядом. Разреши доступ к гео!");
+                alert("Пожалуйста, включи GPS на телефоне, иначе мы не найдем людей рядом.");
             });
         }
 
-        // Сохранение нового профиля
         async function saveProfile() {
-            const alcoholText = document.getElementById('alcoholInput').value || "Просто общение";
-            const defaultAvatar = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500"; // Фейк аватар для старта
+            const alcoholText = document.getElementById('alcoholInput').value || "Ищу компанию";
+            const defaultAvatar = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500";
 
-            await supabase.from('profiles').insert([
-                { id: myId, name: myName, alcohol: alcoholText, lat: myLat, lng: myLng, avatar_url: defaultAvatar }
-            ]);
+            try {
+                const { error } = await supabase.from('profiles').insert([
+                    { id: myId, name: myName, alcohol: alcoholText, lat: myLat, lng: myLng, avatar_url: defaultAvatar }
+                ]);
+                if (error) throw error;
 
-            document.getElementById('setupScreen').style.display = 'none';
-            loadFeed();
+                document.getElementById('setupScreen').style.display = 'none';
+                loadFeed();
+            } catch (err) {
+                alert("Не удалось сохранить профиль: " + err.message);
+            }
         }
 
-        // Загрузка анкет других людей
         async function loadFeed() {
-            // Выкачиваем всех, кроме себя
-            const { data: users } = await supabase.from('profiles').select('*').neq('id', myId);
-            
-            if (!users || users.length === 0) {
-                document.getElementById('noProfiles').style.display = 'block';
-                return;
+            try {
+                const { data: users, error } = await supabase.from('profiles').select('*').neq('id', myId);
+                if (error) throw error;
+
+                if (!users || users.length === 0) {
+                    document.getElementById('noProfiles').style.display = 'block';
+                    return;
+                }
+
+                loadedUsers = users.map(u => {
+                    const dist = getDistance(myLat, myLng, u.lat, u.lng);
+                    return { ...u, distanceInKm: dist };
+                }).sort((a, b) => a.distanceInKm - b.distanceInKm);
+
+                renderFeed();
+            } catch (err) {
+                alert("Ошибка загрузки ленты: " + err.message);
             }
-
-            // Считаем расстояние и фильтруем (например, в радиусе 10 км)
-            loadedUsers = users.map(u => {
-                const dist = getDistance(myLat, myLng, u.lat, u.lng);
-                return { ...u, distanceInKm: dist };
-            }).sort((a, b) => a.distanceInKm - b.distanceInKm); // Сортировка: сначала те, кто ближе
-
-            renderFeed();
         }
 
         function renderFeed() {
@@ -178,19 +185,16 @@
                 currentCard.style.transform = 'translateX(150vw) rotate(30deg)';
                 currentCard.style.opacity = '0';
                 
-                // Сохраняем лайк ("Тост") в базу
                 await supabase.from('toasts').insert([{ from_user: myId, to_user: targetUser.id }]);
 
-                // ПРОВЕРКА НА МЭТЧ: поставил ли тот юзер лайк нам?
                 const { data: match } = await supabase.from('toasts')
                     .select('*')
                     .eq('from_user', targetUser.id)
                     .eq('to_user', myId);
 
                 if (match && match.length > 0) {
-                    // Это МЭТЧ! 
                     setTimeout(() => {
-                        alert(`🍻 Взаимный тост с ${targetUser.name}! Напиши ему в ЛС: tg://user?id=${targetUser.id}`);
+                        alert(`🍻 Взаимный тост с ${targetUser.name}! Ссылка на связь: tg://user?id=${targetUser.id}`);
                     }, 400);
                 }
             } else {
@@ -204,7 +208,6 @@
             }
         }
 
-        // Запуск логики
         init();
     </script>
 </body>

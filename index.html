@@ -1,214 +1,161 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Кто Пойдет?</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; user-select: none; }
-        body { background-color: #121212; color: #ffffff; display: flex; flex-direction: column; justify-content: space-between; align-items: center; height: 100vh; overflow: hidden; }
-        header { padding: 15px; font-size: 20px; font-weight: bold; color: #ff9f43; text-align: center; width: 100%; border-bottom: 1px solid #222; }
-        .card-container { position: relative; flex-grow: 1; width: 90%; max-width: 360px; margin: 20px 0; display: flex; justify-content: center; align-items: center; }
-        .card { position: absolute; width: 100%; height: 100%; background: #1e1e1e; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: flex; flex-direction: column; justify-content: flex-end; transition: transform 0.3s ease, opacity 0.3s ease; border: 1px solid #333; }
-        .card-avatar { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; z-index: 1; }
-        .card-info { position: relative; z-index: 2; padding: 20px; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 70%, transparent 100%); }
-        .user-name { font-size: 24px; font-weight: bold; margin-bottom: 5px; }
-        .user-distance { font-size: 14px; color: #10ac84; font-weight: 600; margin-bottom: 10px; }
-        .user-alcohol { background: rgba(255, 159, 67, 0.2); border: 1px solid #ff9f43; color: #ff9f43; padding: 8px 12px; border-radius: 10px; display: inline-block; font-size: 14px; font-weight: bold; }
-        .buttons-container { width: 100%; max-width: 360px; display: flex; justify-content: space-around; padding-bottom: 30px; z-index: 10; }
-        .btn { width: 70px; height: 70px; border-radius: 50%; border: none; font-size: 28px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: transform 0.1s ease; }
-        .btn:active { transform: scale(0.9); }
-        .btn-pass { background-color: #2d3436; color: #ff6b6b; }
-        .btn-toast { background-color: #ff9f43; color: #fff; }
-        .no-profiles { display: none; text-align: center; font-size: 18px; color: #888; padding: 20px; }
-        .setup-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #121212; z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px; text-align: center; }
-        input { width: 100%; max-width: 300px; padding: 15px; background: #222; border: 1px solid #444; border-radius: 10px; color: white; font-size: 16px; margin: 20px 0; outline: none; }
-        .btn-start { background: #ff9f43; color: white; padding: 15px 40px; border-radius: 10px; border: none; font-size: 18px; font-weight: bold; cursor: pointer; }
-    </style>
-</head>
-<body>
+<script>
+    const tg = window.Telegram?.WebApp;
+    if (tg) { tg.ready(); tg.expand(); }
 
-    <div class="setup-screen" id="setupScreen" style="display: none;">
-        <h2>Что у тебя с собой? 🍾</h2>
-        <p>Введи свой арсенал, чтобы тебя увидели на карте района</p>
-        <input type="text" id="alcoholInput" placeholder="Например: 0.7 Jack Daniels, пиво, вино">
-        <button class="btn-start" onclick="saveProfile()">Погнали</button>
-    </div>
+    // Твои данные подключения
+    const SUPABASE_URL = "https://cxelorovgbkpynpioohh.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_Ua8aV1G_PsMy8f0fhrXCuA_MQQNPoo9";
 
-    <header>🍻 КтоПойдет</header>
+    // ПЕРЕИМЕНОВАЛИ В db, чтобы Safari не ругался
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    <div class="card-container" id="cardContainer">
-        <div class="no-profiles" id="noProfiles">
-            <p>Никого рядом нет... 🫙<br>Добавь фейк-аккаунт в Supabase для теста!</p>
-        </div>
-    </div>
+    let myId = tg?.initDataUnsafe?.user?.id || 77777; 
+    let myName = tg?.initDataUnsafe?.user?.first_name || "Тестовый Юзер";
+    let myLat = 0;
+    let myLng = 0;
+    
+    let loadedUsers = [];
+    let currentIndex = 0;
 
-    <div class="buttons-container">
-        <button class="btn btn-pass" onclick="swipe('pass')">❌</button>
-        <button class="btn btn-toast" onclick="swipe('toast')">🍻</button>
-    </div>
+    function getDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371;
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c;
+    }
 
-    <script>
-        const tg = window.Telegram?.WebApp;
-        if (tg) { tg.ready(); tg.expand(); }
-
-        // --- ВСТАВЬ СВОИ ДАННЫЕ СЮДА ---
-     // ДАННЫЕ СУПАБЕЙС (ВСТАВЬ СВОИ)
-        const SUPABASE_URL = "https://cxelorovgbkpynpioohh.supabase.co"; // ЗАМЕНИ_НА_СВОЙ_URL
-        const SUPABASE_KEY = "sb_publishable_Ua8aV1G_PsMy8fOfhrXCuA_MQQNPoo9"; // ЗАМЕНИ_НА_СВОЙ_КЛЮЧ
-
-
-        // ------------------------------
-
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        let myId = tg?.initDataUnsafe?.user?.id || 77777; 
-        let myName = tg?.initDataUnsafe?.user?.first_name || "Тестовый Юзер";
-        let myLat = 0;
-        let myLng = 0;
-        
-        let loadedUsers = [];
-        let currentIndex = 0;
-
-        function getDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371;
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return R * c;
-        }
-
-        async function init() {
-            navigator.geolocation.getCurrentPosition(async (position) => {
-                myLat = position.coords.latitude;
-                myLng = position.coords.longitude;
-
-                try {
-                    const { data: user, error } = await supabase.from('profiles').select('*').eq('id', myId).maybeSingle();
-                    
-                    if (error) throw error;
-
-                    if (!user) {
-                        document.getElementById('setupScreen').style.display = 'flex';
-                    } else {
-                        await supabase.from('profiles').update({ lat: myLat, lng: myLng }).eq('id', myId);
-                        loadFeed();
-                    }
-                } catch (err) {
-                    alert("Ошибка базы данных: " + err.message);
-                }
-            }, () => {
-                alert("Пожалуйста, включи GPS на телефоне, иначе мы не найдем людей рядом.");
-            });
-        }
-
-        async function saveProfile() {
-            const alcoholText = document.getElementById('alcoholInput').value || "Ищу компанию";
-            const defaultAvatar = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500";
+    async function init() {
+        navigator.geolocation.getCurrentPosition(async (position) => {
+            myLat = position.coords.latitude;
+            myLng = position.coords.longitude;
 
             try {
-                const { error } = await supabase.from('profiles').insert([
-                    { id: myId, name: myName, alcohol: alcoholText, lat: myLat, lng: myLng, avatar_url: defaultAvatar }
-                ]);
+                // Заменили supabase на db
+                const { data: user, error } = await db.from('profiles').select('*').eq('id', myId).maybeSingle();
+                
                 if (error) throw error;
 
-                document.getElementById('setupScreen').style.display = 'none';
-                loadFeed();
-            } catch (err) {
-                alert("Не удалось сохранить профиль: " + err.message);
-            }
-        }
-
-        async function loadFeed() {
-            try {
-                const { data: users, error } = await supabase.from('profiles').select('*').neq('id', myId);
-                if (error) throw error;
-
-                if (!users || users.length === 0) {
-                    document.getElementById('noProfiles').style.display = 'block';
-                    return;
+                if (!user) {
+                    document.getElementById('setupScreen').style.display = 'flex';
+                } else {
+                    await db.from('profiles').update({ lat: myLat, lng: myLng }).eq('id', myId);
+                    loadFeed();
                 }
-
-                loadedUsers = users.map(u => {
-                    const dist = getDistance(myLat, myLng, u.lat, u.lng);
-                    return { ...u, distanceInKm: dist };
-                }).sort((a, b) => a.distanceInKm - b.distanceInKm);
-
-                renderFeed();
             } catch (err) {
-                alert("Ошибка загрузки ленты: " + err.message);
+                alert("Ошибка базы данных: " + err.message);
             }
-        }
+        }, () => {
+            alert("Пожалуйста, включи GPS на телефоне, иначе мы не найдем людей рядом.");
+        });
+    }
 
-        function renderFeed() {
-            const container = document.getElementById('cardContainer');
-            container.innerHTML = `<div class="no-profiles" id="noProfiles"><p>Никого рядом нет... 🫙</p></div>`;
-            
-            if (loadedUsers.length === 0) {
+    async function saveProfile() {
+        const alcoholText = document.getElementById('alcoholInput').value || "Ищу компанию";
+        const defaultAvatar = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500";
+
+        try {
+            // Заменили supabase на db
+            const { error } = await db.from('profiles').insert([
+                { id: myId, name: myName, alcohol: alcoholText, lat: myLat, lng: myLng, avatar_url: defaultAvatar }
+            ]);
+            if (error) throw error;
+
+            document.getElementById('setupScreen').style.display = 'none';
+            loadFeed();
+        } catch (err) {
+            alert("Не удалось保存 профиль: " + err.message);
+        }
+    }
+
+    async function loadFeed() {
+        try {
+            // Заменили supabase на db
+            const { data: users, error } = await db.from('profiles').select('*').neq('id', myId);
+            if (error) throw error;
+
+            if (!users || users.length === 0) {
                 document.getElementById('noProfiles').style.display = 'block';
                 return;
             }
 
-            for (let i = loadedUsers.length - 1; i >= 0; i--) {
-                const user = loadedUsers[i];
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.id = `card-${i}`;
-                card.style.zIndex = loadedUsers.length - i;
+            loadedUsers = users.map(u => {
+                const dist = getDistance(myLat, myLng, u.lat, u.lng);
+                return { ...u, distanceInKm: dist };
+            }).sort((a, b) => a.distanceInKm - b.distanceInKm);
 
-                const distStr = user.distanceInKm < 1 
-                    ? `${Math.round(user.distanceInKm * 1000)} метров от тебя` 
-                    : `${user.distanceInKm.toFixed(1)} км от тебя`;
+            renderFeed();
+        } catch (err) {
+            alert("Ошибка загрузки ленты: " + err.message);
+        }
+    }
 
-                card.innerHTML = `
-                    <div class="card-avatar" style="background-image: url('${user.avatar_url}')"></div>
-                    <div class="card-info">
-                        <div class="user-name">${user.name}</div>
-                        <div class="user-distance">📍 ${distStr}</div>
-                        <div class="user-alcohol">${user.alcohol}</div>
-                    </div>
-                `;
-                container.appendChild(card);
-            }
+    function renderFeed() {
+        const container = document.getElementById('cardContainer');
+        container.innerHTML = `<div class="no-profiles" id="noProfiles"><p>Никого рядом нет... 🫙</p></div>`;
+        
+        if (loadedUsers.length === 0) {
+            document.getElementById('noProfiles').style.display = 'block';
+            return;
         }
 
-        async function swipe(action) {
-            if (currentIndex >= loadedUsers.length) return;
+        for (let i = loadedUsers.length - 1; i >= 0; i--) {
+            const user = loadedUsers[i];
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.id = `card-${i}`;
+            card.style.zIndex = loadedUsers.length - i;
 
-            const targetUser = loadedUsers[currentIndex];
-            const currentCard = document.getElementById(`card-${currentIndex}`);
+            const distStr = user.distanceInKm < 1 
+                ? `${Math.round(user.distanceInKm * 1000)} метров от тебя` 
+                : `${user.distanceInKm.toFixed(1)} км от тебя`;
+
+            card.innerHTML = `
+                <div class="card-avatar" style="background-image: url('${user.avatar_url}')"></div>
+                <div class="card-info">
+                    <div class="user-name">${user.name}</div>
+                    <div class="user-distance">📍 ${distStr}</div>
+                    <div class="user-alcohol">${user.alcohol}</div>
+                </div>
+            `;
+            container.appendChild(card);
+        }
+    }
+
+    async function swipe(action) {
+        if (currentIndex >= loadedUsers.length) return;
+
+        const targetUser = loadedUsers[currentIndex];
+        const currentCard = document.getElementById(`card-${currentIndex}`);
+        
+        if (action === 'toast') {
+            currentCard.style.transform = 'translateX(150vw) rotate(30deg)';
+            currentCard.style.opacity = '0';
             
-            if (action === 'toast') {
-                currentCard.style.transform = 'translateX(150vw) rotate(30deg)';
-                currentCard.style.opacity = '0';
-                
-                await supabase.from('toasts').insert([{ from_user: myId, to_user: targetUser.id }]);
+            // Заменили supabase на db
+            await db.from('toasts').insert([{ from_user: myId, to_user: targetUser.id }]);
 
-                const { data: match } = await supabase.from('toasts')
-                    .select('*')
-                    .eq('from_user', targetUser.id)
-                    .eq('to_user', myId);
+            const { data: match } = await db.from('toasts')
+                .select('*')
+                .eq('from_user', targetUser.id)
+                .eq('to_user', myId);
 
-                if (match && match.length > 0) {
-                    setTimeout(() => {
-                        alert(`🍻 Взаимный тост с ${targetUser.name}! Ссылка на связь: tg://user?id=${targetUser.id}`);
-                    }, 400);
-                }
-            } else {
-                currentCard.style.transform = 'translateX(-150vw) rotate(-30deg)';
-                currentCard.style.opacity = '0';
+            if (match && match.length > 0) {
+                setTimeout(() => {
+                    alert(`🍻 Взаимный тост с ${targetUser.name}! Ссылка на связь: tg://user?id=${targetUser.id}`);
+                }, 400);
             }
-
-            currentIndex++;
-            if (currentIndex === loadedUsers.length) {
-                document.getElementById('noProfiles').style.display = 'block';
-            }
+        } else {
+            currentCard.style.transform = 'translateX(-150vw) rotate(-30deg)';
+            currentCard.style.opacity = '0';
         }
 
-        init();
-    </script>
-</body>
-</html>
+        currentIndex++;
+        if (currentIndex === loadedUsers.length) {
+            document.getElementById('noProfiles').style.display = 'block';
+        }
+    }
+
+    init();
+</script>
